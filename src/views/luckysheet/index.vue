@@ -102,10 +102,82 @@
       </el-table-column> -->
     </el-table>
     <!-- <Table /> -->
+    <el-drawer
+      title="添加新模块"
+      :visible.sync="drawer"
+      :direction="direction"
+      :before-close="handleClose"
+      custom-class="demo-drawer"
+      ref="drawer"
+    >
+      <!-- <span>我来啦!</span> -->
+      <div class="demo-drawer__content">
+        <el-form :model="form">
+          <!-- <el-form-item label="活动名称" :label-width="formLabelWidth">
+            <el-input v-model="form.name" autocomplete="off"></el-input>
+          </el-form-item> -->
+          <el-form-item label="选择模块" :label-width="formLabelWidth">
+            <el-select v-model="form.region" placeholder="请选择新模块">
+              <el-option
+                v-for="item in modularOptions"
+                :key="item.itemValue"
+                :label="item.itemLabel"
+                :value="item.itemValue"
+              />
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <div class="demo-drawer__footer">
+          <el-button @click="cancelForm">取 消</el-button>
+          <el-button
+            type="primary"
+            @click="submitDrawer()"
+            :loading="loading"
+            >{{ loading ? "提交中 ..." : "确 定" }}</el-button
+          >
+        </div>
+      </div>
+    </el-drawer>
   </div>
 </template>
-
 <script>
+const modularDate = [
+  {
+    modular:'A',
+    modularMain:[
+      {
+        date: "A",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+      {
+        date: "A",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+    ]
+  },
+  {
+    modular:'B',
+    modularMain:[
+      {
+        date: "B",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+      {
+        date: "B",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+      {
+        date: "B",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+    ]
+  },
+]
 import Menu from "./Menu";
 import Table from "./Table";
 export default {
@@ -116,6 +188,26 @@ export default {
   data() {
     return {
       tableData: [
+        {
+          date: "1",
+          name: "66kV华朝甲线76314开关合/分",
+          address: "",
+        },
+        {
+          date: "2",
+          name: "66kV华朝甲线76314开关合/分",
+          address: "",
+        },
+        {
+          date: "2",
+          name: "66kV华朝甲线76314开关合/分",
+          address: "",
+        },
+        {
+          date: "3",
+          name: "66kV华朝甲线76314开关合/分",
+          address: "",
+        },
         {
           date: "66kV",
           name: "66kV华朝甲线76314开关合/分",
@@ -229,9 +321,35 @@ export default {
       contextPos: {
         l: 0,
         t: 0,
+        c: "",
       },
       row: "",
       column: "",
+      drawer: false,
+      direction: "rtl",
+      formLabelWidth: "80px",
+      loading: false,
+      form: {
+        region: "",
+      },
+      modularOptions: [
+        {
+          itemValue: "A",
+          itemLabel: "A",
+        },
+        {
+          itemValue: "B",
+          itemLabel: "B",
+        },
+        {
+          itemValue: "C",
+          itemLabel: "C",
+        },
+        {
+          itemValue: "D",
+          itemLabel: "D",
+        },
+      ],
     };
   },
   mounted() {
@@ -301,6 +419,7 @@ export default {
       this.showMenu = false;
       this.row = row;
       this.column = column;
+      console.log(column);
     },
     tableCellStyle(row, rowIndex, column) {
       if (this.row && this.columnName) {
@@ -328,51 +447,18 @@ export default {
       this.showMenu = true;
       this.contextPos.l = e.pageX;
       this.contextPos.t = e.pageY;
+      if (column.label == "间隔名称") {
+        this.contextPos.c = 1;
+      } else {
+        this.contextPos.c = 0;
+      }
     },
     changeShowMenu() {
       this.showMenu = !this.showMenu;
     },
     menyItemCmd(cmd) {
-      const tableData = this.tableData;
-      const startX = Math.min(this.startX, this.endX);
-      const startY = Math.min(this.startY, this.endY);
-      const endX = Math.max(this.startX, this.endX);
-      const endY = Math.max(this.startY, this.endY);
       switch (cmd) {
-        case "merge":
-          if (
-            startX === -1 ||
-            startY === -1 ||
-            endX === -1 ||
-            endY === -1 ||
-            (startX === endX && startY === endY)
-          ) {
-            return;
-          }
-          const startIndex = (startX - 1) * tableData.cols + startY - 1;
-          this.tableData.layoutDetail[startIndex].rowSpan = endX - startX + 1;
-          this.tableData.layoutDetail[startIndex].colSpan = endY - startY + 1;
-          break;
-        case "split":
-          this.tableData.layoutDetail.forEach((v) => {
-            v.rowSpan = 1;
-            v.colSpan = 1;
-          });
-          break;
-        case "delRow":
-          var newRow = {
-            date: this.row.date,
-            name: this.row.name,
-            address: "",
-          };
-          this.tableData.splice(this.row.index, 1);
-          this.getSpanArrFirst();
-          break;
-        case "delCol":
-          this.tableData.cols = this.tableData.cols - 1;
-          this.reRenderTableLayout();
-          break;
-        case "addRow":
+        case "upAddRow":
           var newRow = {
             date: this.row.date,
             name: this.row.name,
@@ -381,16 +467,101 @@ export default {
           this.tableData.splice(this.row.index, 0, newRow);
           this.getSpanArrFirst();
           break;
-        case "addCol":
-          this.tableData.cols = this.tableData.cols + 1;
-          this.reRenderTableLayout();
+        case "downAddRow":
+          var newRow = {
+            date: this.row.date,
+            name: this.row.name,
+            address: "",
+          };
+          this.tableData.splice(this.row.index + 1, 0, newRow);
+          this.getSpanArrFirst();
           break;
-        case "clearSelection":
-          this.clearSelection();
+        case "delRow":
+          this.tableData.splice(this.row.index, 1);
+          this.getSpanArrFirst();
+          break;
+        case "upAddModular":
+          this.drawer = true;
+          // var newRow = {
+          //   date: this.row.date,
+          //   name: this.row.name,
+          //   address: "",
+          // };
+          // this.tableData.splice(this.row.index, 0, newRow);
+          // this.getSpanArrFirst();
+          break;
+        case "downAddModular":
+          this.drawer = true;
+          // var newRow = {
+          //   date: this.row.date,
+          //   name: this.row.name,
+          //   address: "",
+          // };
+          // this.tableData.splice(this.row.index, 0, newRow);
+          // this.getSpanArrFirst();
+          break;
+        case "delModular":
+          this.tableData.splice(this.row.index, 1);
+          this.getSpanArrFirst();
+          console.log(this.row);
+          this.tableData.map((item) => {
+            if (item.date == this.row.date) {
+              console.log(item.date);
+              console.log(this.row.date);
+              this.tableData.splice(item.index - 1, 1);
+            }
+          });
+          this.getSpanArrFirst();
           break;
       }
       this.changeShowMenu();
     },
+    submitDrawer(done) {
+      this.$confirm("确定要提交表单吗？")
+        .then((_) => {
+          this.loading = true;
+          // this.form.region
+          // modularDate
+          console.log(modularDate)
+          console.log(this.form.region)
+          var result = modularDate.filter((item) => {
+            console.log(item['modular'])
+            return item['modular'] == this.form.region
+          })
+          this.tableData.splice(this.row.index, 0, ...result[0].modularMain);
+          this.getSpanArrFirst();
+          console.log(this.tableData)
+          this.drawer = false;
+          this.loading = false;
+        })
+        .catch((_) => {});
+    },
+    cancelForm() {
+      this.loading = false;
+      this.drawer = false;
+    },
+    handleClose(done) {
+        this.$confirm('确认关闭？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {});
+      }
   },
 };
 </script>
+<style lang="scss" scoped>
+.demo-drawer__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+}
+.demo-drawer__content form {
+  flex: 1;
+}
+.demo-drawer__footer {
+  display: flex;
+  justify-content: flex-end;
+}
+</style>

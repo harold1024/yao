@@ -3,8 +3,15 @@
     class="context-menu"
     :style="{ left: `${contextPos.l}px`, top: `${contextPos.t}px` }"
   >
-    <ul>
+    <ul v-if="contextPos.c == 1">
       <li v-for="(item, index) in operations" :key="index">
+        <a @click="menuItemClick(item.code)">
+          {{ item.name }}
+        </a>
+      </li>
+    </ul>
+    <ul v-else>
+      <li v-for="(item, index) in operationsA" :key="index">
         <a @click="menuItemClick(item.code)">
           {{ item.name }}
         </a>
@@ -19,68 +26,57 @@ export default {
       type: Array,
       default: () => [
         {
-          name: '添加行',
-          code: 'addRow'
+          name: "向上添加模块",
+          code: "upAddModular",
         },
         {
-          name: '添加模块',
-          code: 'merge'
+          name: "向下添加模块",
+          code: "downAddModular",
         },
         {
-          name: '删除行',
-          code: 'delRow'
+          name: "删除模块",
+          code: "delModular",
+        },
+      ],
+    },
+    operationsA: {
+      type: Array,
+      default: () => [
+        {
+          name: "向上添加行",
+          code: "upAddRow",
         },
         {
-          name: '删除模块',
-          code: 'merge'
-        }
-        // {
-        //   name: '拆分',
-        //   code: 'split'
-        // },
-        // {
-        //   name: '删除行',
-        //   code: 'delRow'
-        // },
-        // {
-        //   name: "删除列",
-        //   code: "delCol",
-        // },
-        // {
-        //   name: '添加行',
-        //   code: 'addRow'
-        // },
-        // {
-        //   name: '添加列',
-        //   code: 'addCol'
-        // },
-        // {
-        //   name: '清空选择',
-        //   code: 'clearSelection'
-        // }
-      ]
+          name: "向下添加行",
+          code: "downAddRow",
+        },
+        {
+          name: "删除行",
+          code: "delRow",
+        },
+      ],
     },
     parentTableData: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     contextPos: {
       type: Object,
-      default: () => ({ l: 0, t: 0 })
-    }
+      default: () => ({ l: 0, t: 0, c: "" }),
+    },
   },
   mounted() {},
   methods: {
     menuItemClick(cmd) {
-      this.$emit('menyItemCmd', cmd)
-    }
-  }
-}
+      this.$emit("menyItemCmd", cmd);
+    },
+  },
+};
 </script>
 <style lang="scss" scoped>
 .context-menu {
   position: fixed;
-  width: 96px;
+  width: 130px;
   background-color: #fff;
   z-index: 100;
   border: 1px solid rgba(0, 0, 0, 0.15);
