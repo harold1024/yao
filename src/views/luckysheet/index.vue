@@ -20,7 +20,7 @@
     >
       >
       <el-table-column type="index" />
-      <el-table-column prop="date" label="间隔名称">
+      <el-table-column prop="date" label="间隔名称" class="table-column">
         <template slot-scope="scope">
           <span
             v-if="
@@ -28,6 +28,7 @@
             "
           >
             <el-input
+              class="inputSty"
               v-model="scope.row.date"
               maxlength="300"
               placeholder="请输入原因"
@@ -39,7 +40,7 @@
           <span v-else>{{ scope.row.date }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="信号描述">
+      <el-table-column prop="name" label="信号描述" class="table-column">
         <template slot-scope="scope">
           <span
             v-if="
@@ -47,6 +48,7 @@
             "
           >
             <el-input
+              class="inputSty"
               v-model="scope.row.name"
               placeholder="请输入信号描述"
               size="mini"
@@ -57,12 +59,18 @@
           <span v-else>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="address" label="备注" width="280">
+      <el-table-column
+        prop="address"
+        label="备注"
+        width="280"
+        class="table-column"
+      >
         <template slot-scope="scope">
           <span
             v-if="scope.row.index === tabClickIndex && tabClickLabel === '备注'"
           >
             <el-input
+              class="inputSty"
               v-model="scope.row.address"
               maxlength="300"
               placeholder="请输入备注"
@@ -143,41 +151,76 @@
 <script>
 const modularDate = [
   {
-    modular:'A',
-    modularMain:[
+    modular: "A",
+    modularMain: [
       {
-        date: "A",
+        date: "A模块",
         name: "66kV华朝甲线76314开关合/分",
         address: "",
       },
-      {
-        date: "A",
-        name: "66kV华朝甲线76314开关合/分",
-        address: "",
-      },
-    ]
+    ],
   },
   {
-    modular:'B',
-    modularMain:[
+    modular: "B",
+    modularMain: [
       {
-        date: "B",
+        date: "B模块",
         name: "66kV华朝甲线76314开关合/分",
         address: "",
       },
       {
-        date: "B",
+        date: "B模块",
         name: "66kV华朝甲线76314开关合/分",
         address: "",
       },
-      {
-        date: "B",
-        name: "66kV华朝甲线76314开关合/分",
-        address: "",
-      },
-    ]
+    ],
   },
-]
+  {
+    modular: "C",
+    modularMain: [
+      {
+        date: "C模块",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+      {
+        date: "C模块",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+      {
+        date: "C模块",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+    ],
+  },
+  {
+    modular: "D",
+    modularMain: [
+      {
+        date: "D模块",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+      {
+        date: "D模块",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+      {
+        date: "D模块",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+      {
+        date: "D模块",
+        name: "66kV华朝甲线76314开关合/分",
+        address: "",
+      },
+    ],
+  },
+];
 import Menu from "./Menu";
 import Table from "./Table";
 export default {
@@ -350,6 +393,7 @@ export default {
           itemLabel: "D",
         },
       ],
+      AddModular:"downAddModular",
     };
   },
   mounted() {
@@ -419,15 +463,16 @@ export default {
       this.showMenu = false;
       this.row = row;
       this.column = column;
-      console.log(column);
     },
     tableCellStyle(row, rowIndex, column) {
       if (this.row && this.columnName) {
       }
       if (this.row === row.row && this.column === row.column) {
         return "background-color:#ccc;";
+        // return "border: 1px solid #ccc";
       } else {
         return "background-color:#fff;";
+        // return "border: 1px solid #fff;";
       }
     },
     // 失去焦点初始化
@@ -482,6 +527,7 @@ export default {
           break;
         case "upAddModular":
           this.drawer = true;
+          this.AddModular="upAddModular"
           // var newRow = {
           //   date: this.row.date,
           //   name: this.row.name,
@@ -492,6 +538,7 @@ export default {
           break;
         case "downAddModular":
           this.drawer = true;
+          this.AddModular="downAddModular"
           // var newRow = {
           //   date: this.row.date,
           //   name: this.row.name,
@@ -501,36 +548,42 @@ export default {
           // this.getSpanArrFirst();
           break;
         case "delModular":
-          this.tableData.splice(this.row.index, 1);
-          this.getSpanArrFirst();
-          console.log(this.row);
+          // this.tableData.splice(this.row.index, 1);
+          // this.getSpanArrFirst();
+          // console.log(this.row);
+          let num = 0;
           this.tableData.map((item) => {
             if (item.date == this.row.date) {
-              console.log(item.date);
-              console.log(this.row.date);
-              this.tableData.splice(item.index - 1, 1);
+              num++;
             }
           });
+          this.tableData.splice(this.row.index, num);
           this.getSpanArrFirst();
           break;
       }
       this.changeShowMenu();
     },
     submitDrawer(done) {
-      this.$confirm("确定要提交表单吗？")
+      this.$confirm("确定要添加此模块吗？")
         .then((_) => {
           this.loading = true;
           // this.form.region
           // modularDate
-          console.log(modularDate)
-          console.log(this.form.region)
           var result = modularDate.filter((item) => {
-            console.log(item['modular'])
-            return item['modular'] == this.form.region
-          })
-          this.tableData.splice(this.row.index, 0, ...result[0].modularMain);
+            return item["modular"] == this.form.region;
+          });
+          let num = 0;
+          this.tableData.map((item) => {
+            if (item.date == this.row.date) {
+              num++;
+            }
+          });
+          if(this.AddModular == "downAddModular"){
+            this.tableData.splice(this.row.index+num, 0, ...result[0].modularMain);
+          } else {
+            this.tableData.splice(this.row.index, 0, ...result[0].modularMain);
+          }
           this.getSpanArrFirst();
-          console.log(this.tableData)
           this.drawer = false;
           this.loading = false;
         })
@@ -541,12 +594,12 @@ export default {
       this.drawer = false;
     },
     handleClose(done) {
-        this.$confirm('确认关闭？')
-          .then(_ => {
-            done();
-          })
-          .catch(_ => {});
-      }
+      this.$confirm("确认关闭？")
+        .then((_) => {
+          done();
+        })
+        .catch((_) => {});
+    },
   },
 };
 </script>
@@ -563,5 +616,22 @@ export default {
 .demo-drawer__footer {
   display: flex;
   justify-content: flex-end;
+}
+
+::v-deep {
+  .el-table--medium td {
+    padding: 0 !important;
+  }
+  .inputSty {
+    // border: 1px solid red;
+    .el-input__inner {
+      height: 23px;
+      line-height: 23px;
+      font-size: 12px;
+      border: none;
+      background: #ccc;
+      padding: 0;
+    }
+  }
 }
 </style>
